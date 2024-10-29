@@ -1,12 +1,16 @@
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import app from "../../firebase/firebase.config";
+import { IoMdEyeOff, IoMdEye } from "react-icons/io";
+
+
 
 const Register = () => {
   const [registerError, setRegisterError] = useState('');
   const [succeed, setSucceed] = useState('');
+  const [show, setShow]= useState(false);
   const auth = getAuth(app);
- 
+  
   const handleRegister = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -15,6 +19,10 @@ const Register = () => {
     setSucceed('');
     if(password.length < 6){
       setRegisterError('Password should be at least 6 characters')
+      return;
+    }
+    else if(!/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/.test(password)){
+      setRegisterError('Your password must be 8 character with one uppercase,lowercase,number and special character')
       return;
     }
     createUserWithEmailAndPassword(auth, email, password)
@@ -59,22 +67,22 @@ const Register = () => {
                 <label htmlFor="password" className="text-sm">
                   Password
                 </label>
-                <a
-                  rel="noopener noreferrer"
-                  href="#"
-                  className="text-xs hover:underline dark:text-gray-600"
-                >
-                  Forgot password?
-                </a>
               </div>
+              <div className="relative">
               <input
-                type="password"
+                type={show ? "password" : 'text' }
                 name="password"
                 id="password"
                 placeholder="password"
                 className="w-full px-3 py-2 border rounded-md dark:border-gray-300 dark:bg-gray-50 dark:text-gray-800"
                 required
               />
+              <span onClick={()=> setShow(!show)} className="absolute mt-3 right-4">
+                {
+                  show ? <IoMdEye /> : <IoMdEyeOff />
+                }
+              </span>
+              </div>
             </div>
           </div>
           <div className="space-y-2">

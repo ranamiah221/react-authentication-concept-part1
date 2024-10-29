@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import app from './../../firebase/firebase.config';
-import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 
 const Login = () => {
-  
+  const [errorLogin, setErrorLogin]=useState('');
+  const [succeed, setSucceed] = useState('');
+  const emailRef=useRef(null);
 	
  const auth = getAuth(app)
  const googleProvider= new GoogleAuthProvider()
@@ -14,14 +17,43 @@ const handleLogin=(e)=>{
   const email=e.target.email.value;
   const password=e.target.password.value;
 
+  setErrorLogin('');
+  setSucceed('');
+
   signInWithEmailAndPassword(auth, email, password)
   .then(result=>{
 		const user= result.user;
 		console.log(user);
+    if(user.emailVerified){
+      setSucceed('User login successfully');
+    }
+    else{
+      alert('please email verify')
+    }
+    
 	   })
 	   .catch(err=>{
       console.log(err);
+      setErrorLogin(err.message)
 	   })
+}
+const handleForgotPassword=()=>{
+  const email=emailRef.current.value;
+  if(!email){
+    setErrorLogin('Please provide an email')
+    return;
+  }
+  else if(!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)){
+    setErrorLogin('please write a valid email')
+    return;
+  }
+  sendPasswordResetEmail(auth, email)
+  .then(()=>{
+    setSucceed('please check your mail and set your new password')
+  })
+  .catch(error=>{
+    setErrorLogin(error.message)
+  })
 }
 
 // social login
@@ -54,6 +86,7 @@ const handleLogin=(e)=>{
             <input
               type="email"
               name="email"
+              ref={emailRef}
               id="email"
               placeholder="Email"
               className="w-full px-4 py-3 rounded-md dark:border-gray-300 dark:bg-gray-50 dark:text-gray-800 focus:dark:border-violet-600"
@@ -71,10 +104,21 @@ const handleLogin=(e)=>{
               className="w-full px-4 py-3 rounded-md dark:border-gray-300 dark:bg-gray-50 dark:text-gray-800 focus:dark:border-violet-600"
             />
             <div className="flex justify-end text-xs dark:text-gray-600">
-              <a rel="noopener noreferrer" href="#">
-                Forgot Password?
+              <a 
+              onClick={handleForgotPassword}
+              rel="noopener noreferrer" href="#">
+                Forgot Password? 
               </a>
             </div>
+          </div>
+
+          <div>
+            {
+              errorLogin && <p className="text-red-600 text-xl">{errorLogin}</p>
+            }
+          {
+            succeed && <p className="text-green-600 text-xl">{succeed}</p>
+          }
           </div>
           <input className=" btn block w-full p-3 text-center rounded-sm 
         hover:bg-red-400
@@ -130,14 +174,9 @@ const handleLogin=(e)=>{
           </button>
         </div>
         <p className="text-xs text-center sm:px-6 dark:text-gray-600">
-          Don't have an account?
-          <a
-            rel="noopener noreferrer"
-            href="#"
-            className="underline dark:text-gray-800"
-          >
-            Register
-          </a>
+          Don't have an account? please
+          <Link to='/register' className="underline dark:text-gray-800 ml-1 text-base"> Register</Link>
+         
         </p>
 
       </div>

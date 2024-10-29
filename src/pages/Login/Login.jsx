@@ -4,6 +4,7 @@ import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopu
 
 
 const Login = () => {
+  
 	
  const auth = getAuth(app)
  const googleProvider= new GoogleAuthProvider()
@@ -16,10 +17,10 @@ const handleLogin=(e)=>{
   signInWithEmailAndPassword(auth, email, password)
   .then(result=>{
 		const user= result.user;
-		console.log("logged user",user);
+		console.log(user);
 	   })
 	   .catch(err=>{
-		console.log(err)
+      console.log(err);
 	   })
 }
 
@@ -138,6 +139,7 @@ const handleLogin=(e)=>{
             Register
           </a>
         </p>
+
       </div>
     </div>
   );
